@@ -1,0 +1,76 @@
+{
+  "posts": [
+    {
+      "id": "1",
+      "title": "a title",
+      "views": 100
+    },
+    {
+      "id": "2",
+      "title": "another title",
+      "views": 200
+    },
+    {
+      "id": "3",
+      "title": "yassun post",
+      "views": 100000000
+    },
+    {
+      "id": "4",
+      "title": "tessan post",
+      "views": 10
+    },
+    {
+      "id": "4",
+      "title": "tessan post",
+      "views": 10
+    },
+    {
+      "id": "4",
+      "title": "tessan post",
+      "views": 10
+    },
+    {
+      "id": "4",
+      "title": "08f64e6c",
+      "views": 10
+    },
+    {
+      "id": "4",
+      "title": "08be78e4",
+      "recordType": "clock-in"
+    },
+    {
+      "id": "4",
+      "title": "08a8aa88",
+      "recordType": "clock-out"
+    },
+    {
+      "id": "7963",
+      "title": "08470b8a",
+      "recordType": "clock-in",
+      "time": "2024-07-06 01:13:47"
+    },
+    {
+      "id": "b699",
+      "title": "08b04eee",
+      "recordType": "clock-in",
+      "time": "2024-07-06 01:18:17"
+    }
+  ],
+  "comments": [
+    {
+      "id": "1",
+      "text": "a comment about post 1",
+      "postId": "1"
+    },
+    {
+      "id": "2",
+      "text": "another comment about post 1",
+      "postId": "1"
+    }
+  ],
+  "profile": {
+    "name": "typicode"
+  }
+}
