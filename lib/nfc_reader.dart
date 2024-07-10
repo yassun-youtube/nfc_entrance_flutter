@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:nfc_entrance_flutter/user_registration.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:intl/intl.dart';
+import 'test.dart';
 
 class NFCReader extends StatefulWidget {
   final String recordType;
@@ -59,6 +61,21 @@ class _NFCReaderState extends State<NFCReader> {
     }
   }
 
+  Future<bool> getUser(String suicaId) async {
+    final url = Uri.parse('https://wu40c9u3t9.execute-api.ap-northeast-1.amazonaws.com/users/' + suicaId);
+    final headers = {"Content-Type": "application/json", "Authorization": "Bearer shared_key"};
+
+    final response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      print('User found');
+      return true;
+    } else {
+      print('User not found');
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     NfcManager.instance.startSession(onDiscovered: (NfcTag tag) async {
@@ -68,13 +85,22 @@ class _NFCReaderState extends State<NFCReader> {
       Uint8List identifier = Uint8List.fromList(tagData["identifier"]);
       String hexString = uint8ListToHexString(identifier);
       print(hexString);
-      await postData(hexString);
-      Navigator.pop(context);
+      // ユーザ登録があるかチェック
+      if (await getUser(hexString)) {
+        // ユーザ登録がすでにされているのでAPIを叩く
+        await postData(hexString);
+        Navigator.pop(context);
+      } else {
+        // ユーザ登録がないなら作成画面へ
+        Navigator.of(context, rootNavigator: true).push(
+            MaterialPageRoute(builder: (context) => UserRegistration(suicaId: hexString)));
+      }
     });
     return Center(
       child: ElevatedButton(
           onPressed: () {
-            Navigator.pop(context);
+            // Navigator.pop(context);
+            Navigator.push(context, MaterialPageRoute(builder: (context) => SecondScreen()));
           },
           child: Text('NFCタグをスキャンしてください')
       ),
