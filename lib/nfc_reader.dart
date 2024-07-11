@@ -10,8 +10,9 @@ import 'test.dart';
 
 class NFCReader extends StatefulWidget {
   final String recordType;
+  final Function setIsLoading;
 
-  NFCReader({ required this.recordType });
+  NFCReader({ required this.recordType, required this.setIsLoading });
 
   @override
   _NFCReaderState createState() => _NFCReaderState();
@@ -41,23 +42,25 @@ class _NFCReaderState extends State<NFCReader> {
     return formatter.format(now);
   }
 
-
-
-  Future<void> postData(String suicaId) async {
+  Future<bool> postData(String suicaId) async {
     final url = Uri.parse('https://wu40c9u3t9.execute-api.ap-northeast-1.amazonaws.com/records');
     final headers = {"Content-Type": "application/json", "Authorization": "Bearer shared_key"};
     final body =
     json.encode({"suicaId": suicaId, "recordType": widget.recordType });
 
+    widget.setIsLoading(true);
     final response = await http.post(url, headers: headers, body: body);
+    widget.setIsLoading(false);
 
     if (response.statusCode == 201) {
       print('Post successful');
       print('Response body: ${response.body}');
+      return true;
     } else {
       print('Failed to post data');
       print('Status code: ${response.statusCode}');
       print('Response body: ${response.body}');
+      return false;
     }
   }
 
@@ -88,8 +91,8 @@ class _NFCReaderState extends State<NFCReader> {
       // ユーザ登録があるかチェック
       if (await getUser(hexString)) {
         // ユーザ登録がすでにされているのでAPIを叩く
-        await postData(hexString);
-        Navigator.pop(context);
+        bool postDataSucceeded = await postData(hexString);
+        Navigator.pop(context, postDataSucceeded);
       } else {
         // ユーザ登録がないなら作成画面へ
         Navigator.of(context, rootNavigator: true).push(

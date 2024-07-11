@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:nfc_entrance_flutter/loading_overlay.dart';
 import 'nfc_reader.dart';
+import 'utils/show_alert_dialog.dart';
 
 void main() {
   runApp(const MyApp());
@@ -56,204 +58,181 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  bool isLoading = false;
 
-  void _incrementCounter() {
+  void setIsLoading(bool isLoadingTo) {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      this.isLoading = isLoadingTo;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    showModal(String recordType) {
-      showModalBottomSheet(
+    showModal(String recordType) async {
+      final result = await showModalBottomSheet<bool>(
           context: context,
           builder: (BuildContext context) {
             return Container(
               height: 200,
               color: Colors.white,
               child: Center(
-                child: NFCReader(recordType: recordType),
+                child: NFCReader(recordType: recordType, setIsLoading: setIsLoading),
               ),
             );
           });
+      if (result != null && result) {
+        showAlertDialog(context, '成功', '登録が完了しました。');
+      } else {
+        showAlertDialog(context, '失敗', '登録が失敗しました。');
+      }
     }
 
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const SizedBox(
-                width: double.infinity,
-                child: Text("出退勤", style: TextStyle(fontSize: 24), textAlign: TextAlign.center)),
-            const SizedBox(
-              height: 24,
-            ),
-            SizedBox(
-              width: 200,
-              child: ElevatedButton(
-                onPressed: () => showModal('clock-in'),
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black,
-                  backgroundColor: Colors.blue,
-                  // ボタンのテキスト色
-                  shadowColor: Colors.blueAccent,
-                  // 影の色
-                  elevation: 5,
-                  // ボタンの影の高さ
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30), // 角の丸み
+    return LoadingOverlay(
+      isLoading: isLoading,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: Text(widget.title),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              const SizedBox(
+                  width: double.infinity,
+                  child: Text("出退勤", style: TextStyle(fontSize: 24), textAlign: TextAlign.center)),
+              const SizedBox(
+                height: 24,
+              ),
+              SizedBox(
+                width: 200,
+                child: ElevatedButton(
+                  onPressed: () => showModal('clock-in'),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.black,
+                    backgroundColor: Colors.blue,
+                    // ボタンのテキスト色
+                    shadowColor: Colors.blueAccent,
+                    // 影の色
+                    elevation: 5,
+                    // ボタンの影の高さ
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30), // 角の丸み
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                ),
-                child: const Text(
-                  '出勤',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                  child: const Text(
+                    '出勤',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            SizedBox(
-              width: 200,
-              child: ElevatedButton(
-                onPressed: () => showModal('clock-out'),
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black,
-                  backgroundColor: Colors.green,
-                  // ボタンのテキスト色
-                  shadowColor: Colors.blueAccent,
-                  // 影の色
-                  elevation: 5,
-                  // ボタンの影の高さ
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30), // 角の丸み
+              const SizedBox(
+                height: 32,
+              ),
+              SizedBox(
+                width: 200,
+                child: ElevatedButton(
+                  onPressed: () => showModal('clock-out'),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.black,
+                    backgroundColor: Colors.green,
+                    // ボタンのテキスト色
+                    shadowColor: Colors.blueAccent,
+                    // 影の色
+                    elevation: 5,
+                    // ボタンの影の高さ
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30), // 角の丸み
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                ),
-                child: const Text(
-                  '退勤',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                  child: const Text(
+                    '退勤',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            const SizedBox(
-                width: double.infinity,
-                child: Text("休憩", style: TextStyle(fontSize: 24), textAlign: TextAlign.center)),
-            const SizedBox(
-              height: 32,
-            ),
-            SizedBox(
-              width: 200,
-              child: ElevatedButton(
-                onPressed: () => showModal('rest-in'),
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black,
-                  backgroundColor: Colors.cyan,
-                  // ボタンのテキスト色
-                  shadowColor: Colors.blueAccent,
-                  // 影の色
-                  elevation: 5,
-                  // ボタンの影の高さ
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30), // 角の丸み
+              const SizedBox(
+                height: 32,
+              ),
+              const SizedBox(
+                  width: double.infinity,
+                  child: Text("休憩", style: TextStyle(fontSize: 24), textAlign: TextAlign.center)),
+              const SizedBox(
+                height: 32,
+              ),
+              SizedBox(
+                width: 200,
+                child: ElevatedButton(
+                  onPressed: () => showModal('rest-in'),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.black,
+                    backgroundColor: Colors.cyan,
+                    // ボタンのテキスト色
+                    shadowColor: Colors.blueAccent,
+                    // 影の色
+                    elevation: 5,
+                    // ボタンの影の高さ
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30), // 角の丸み
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                ),
-                child: const Text(
-                  '休憩開始',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                  child: const Text(
+                    '休憩開始',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(
-              height: 32,
-            ),
-            SizedBox(
-              width: 200,
-              child: ElevatedButton(
-                onPressed: () => showModal('rest-out'),
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black,
-                  backgroundColor: Colors.indigo,
-                  // ボタンのテキスト色
-                  shadowColor: Colors.blueAccent,
-                  // 影の色
-                  elevation: 5,
-                  // ボタンの影の高さ
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30), // 角の丸み
+              const SizedBox(
+                height: 32,
+              ),
+              SizedBox(
+                width: 200,
+                child: ElevatedButton(
+                  onPressed: () => showModal('rest-out'),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.black,
+                    backgroundColor: Colors.indigo,
+                    // ボタンのテキスト色
+                    shadowColor: Colors.blueAccent,
+                    // 影の色
+                    elevation: 5,
+                    // ボタンの影の高さ
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30), // 角の丸み
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                ),
-                child: const Text(
-                  '休憩終了',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                  child: const Text(
+                    '休憩終了',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
